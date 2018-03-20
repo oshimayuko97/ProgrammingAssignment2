@@ -2,23 +2,32 @@
 ## a list of an original matrix and its cached matrix is created.
 
 makeCacheMatrix <- function(x = matrix()) {
-  set <- x
-  get <- x
-  matrices <- list(set = set, get = get)
+        m <- NULL
+        set <- function(y) {
+                x <<- y
+                m <<- NULL
+        }
+        get <- function() x
+        setsolve <- function(solve) m <<- solve
+        getsolve <- function() m
+        list(set = set, get = get,
+             setsolve = setsolve,
+             getsolve = getsolve)
 }
-matrices <- makeCacheMatrix(x)
 
 
-## Using the list created above, I firstly check whether the two matrices
-## are identical(if so, inversion has not occurred). If not inversed, the
+## Using the list created above, I firstly check whether the cached matrix
+## has been inversed.If so, it will be returned directly. If not inversed, the
 ## matrix will be inversed and returned to the user.
 
-cacheSolve <- function(matrices) {
-  m <- matrices$get
-  if(identical(matrices$set,matrices$get)) {
-    message("getting cached data")
-    return(solve(m))
-  }else{
-    return(m)
-  }
+cacheSolve <- function(x, ...) {
+        m <- x$getsolve()
+        if(!is.null(m)) {
+                message("getting cached data")
+                return(m)
+        }
+        data <- x$get()
+        m <- solve(data, ...)
+        x$setsolve(m)
+        m
 }
